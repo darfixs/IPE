@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riesgos Ergonómicos - Escuela</title>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <!-- En el <head> -->
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Luckiest Guy', cursive;
+      background: #87ceeb;
+      overflow: hidden;
+    }
+
+    canvas#particulas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+    }
+
+    .slider {
+      position: relative;
+      display: flex;
+      flex-direction: row;
+      width: 400vw;
+      height: 100vh;
+      transform: translateX(0);
+      transition: transform 0.8s ease-in-out;
+    }
+
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      padding: 2em;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    h1 {
+      font-size: 3.5em;
+      color: white;
+      /* ← antes era #ffd90f */
+      text-shadow: 3px 3px 0 #000, 0 0 10px #fff;
+      margin-bottom: 1.2em;
+      position: relative;
+      top: -20px;
+      background: #ffec5c;
+      padding: 0.2em 1em;
+      border-radius: 20px;
+      border: 3px solid #000;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      z-index: 5;
+    }
+
+    .bloque-ejemplo {
+      display: flex;
+      flex-direction: row;
+      gap: 2em;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .tarjeta {
+      width: 420px;
+      min-height: 480px;
+      height: auto;
+      border-radius: 20px;
+      padding: 1.2em;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 10px 30px #0005;
+      transition: background 0.5s;
+      font-size: 1.3em;
+    }
+
+    .tarjeta.riesgo {
+      background: #ffe5e5;
+    }
+
+    .tarjeta.dano {
+      background: #fff0cc;
+    }
+
+    .tarjeta.prevencion {
+      background: #e8ffe8;
+    }
+
+    .tarjeta h3 {
+      margin: 0.1em 0 0.5em;
+      /* más pegado arriba */
+    }
+
+    .tarjeta img {
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+      margin-bottom: 1em;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .tarjeta:hover img {
+      transform: scale(1.05) rotate(-2deg);
+      filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.4));
+    }
+
+    .tarjeta p {
+      font-size: 1em;
+      margin-top: 0.5em;
+    }
+
+    .tooltip {
+      position: absolute;
+      bottom: -50px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.8);
+      background: #ffec5c;
+      color: #000;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.8em;
+      font-family: 'Press Start 2P', cursive;
+      white-space: nowrap;
+      opacity: 0;
+      transition: all 0.4s ease;
+      pointer-events: none;
+      z-index: 10;
+      box-shadow: 0 0 10px #0008;
+    }
+
+    .tarjeta:hover .tooltip {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+      animation: blinkGlow 1s infinite alternate;
+    }
+
+    @keyframes blinkGlow {
+      0% {
+        filter: drop-shadow(0 0 4px #fff799);
+      }
+
+      100% {
+        filter: drop-shadow(0 0 8px #ffec5c);
+      }
+    }
+
+    .frase {
+      font-style: italic;
+      text-align: center;
+      color: white;
+      text-shadow: 1px 1px 4px #000;
+      margin-top: 4em;
+      font-size: 1.3em;
+      animation: flotar 3s ease-in-out infinite;
+    }
+
+    @keyframes flotar {
+      0% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    .btn-volver {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffe356;
+      color: #000;
+      padding: 0.7em 1.5em;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 1.4em;
+      box-shadow: 0 2px 6px #00000033;
+      z-index: 10;
+    }
+
+    .emoji-rain,
+    .skillcheck-rain {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .emoji,
+    .skill {
+      position: absolute;
+      animation: fall 2s linear infinite;
+      font-size: 1.5em;
+    }
+
+    .skill {
+      font-size: 1.2em;
+      color: limegreen;
+    }
+
+    @keyframes fall {
+      0% {
+        top: -10%;
+        opacity: 1;
+      }
+
+      100% {
+        top: 110%;
+        opacity: 0;
+      }
+    }
+
+    .vida-barra {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 16px;
+      background: #444;
+      border: 2px solid #000;
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .vida-nivel {
+      height: 100%;
+      background: red;
+      width: 100%;
+      animation: reducirVida 2s forwards;
+    }
+
+    @keyframes reducirVida {
+      0% {
+        width: 100%;
+      }
+
+      25% {
+        width: 80%;
+      }
+
+      50% {
+        width: 60%;
+      }
+
+      75% {
+        width: 40%;
+        background: darkred;
+      }
+
+      100% {
+        width: 20%;
+        background: darkred;
+      }
+    }
+
+    .tarjeta.dano.roja {
+      background: #8b0000 !important;
+      color: white;
+    }
+
+    .bloque-con-titulo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2em;
+    }
+
+    #transicion-pantalla {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .cortina {
+      width: 50%;
+      height: 100%;
+      background: #8ed7f8;
+      transform: scaleX(1);
+      transition: transform 0.7s ease-in-out;
+      will-change: transform;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .cortina.izquierda {
+      transform-origin: left;
+      border-right: 12px solid black;
+      /* Borde solo en el lado derecho */
+    }
+
+    .cortina.derecha {
+      transform-origin: right;
+      border-left: 12px solid black;
+      /* Borde solo en el lado izquierdo */
+    }
+
+    .cortina.derecha img {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%) translateX(-50%) scale(1.2);
+      width: 200px;
+      opacity: 0.9;
+    }
+
+    #transicion-pantalla.oculta .cortina {
+      transform: scaleX(0);
+    }
+
+    
+.titulo-ergonomia {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 3.2em;
+  color: #000;
+  background: #ffe356;
+  padding: 14px 32px;
+  border-radius: 20px;
+  display: inline-block;
+  box-shadow: 0 0 0 6px #000 inset, 4px 4px 12px #4448;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: entradaBrillante 1.2s ease-out forwards;
+  margin-bottom: 30px;
+}
+
+.barra-infinita {
+  height: 100%;
+  background: linear-gradient(to right, #ffe356, #f7c71d);
+  animation: rellenoContinuo 7s linear infinite;
+  width: 100%;
+  transform-origin: left;
+}
+
+.brillo-barra {
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, #ffffff99, transparent);
+  animation: brilloDesliza 7s linear infinite;
+  z-index: 2;
+}
+
+@keyframes rellenoContinuo {
+  0% { transform: scaleX(0); opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0.4; }
+}
+
+@keyframes brilloDesliza {
+  0% { left: -30%; }
+  100% { left: 100%; }
+}
+
+@keyframes homerRun {
+  0% { left: -40px; }
+  100% { left: 100%; }
+}
+
+@keyframes brilloAnimado {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.rosquilla {
+  position: absolute;
+  right: -10px;
+  top: -25px;
+  width: 50px;
+  height: 50px;
+  animation: girarRosquilla 4s linear infinite;
+  z-index: 4;
+  pointer-events: none;
+}
+
+@keyframes girarRosquilla {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+  </style>
+  </style>
+</head>
+
+<body>
+  <div id="transicion-pantalla">
+    <div class="cortina izquierda"></div>
+    <div class="cortina derecha">
+      <img src="darioALlogoGIT.png" alt="Logo Cortina" />
+    </div>
+  </div>
+  <canvas id="particulas"></canvas>
+  <div class="slider" id="slider">
+    <section class="slide">
+      <div class="bloque-con-titulo">
+        <h1>Carga física</h1>
+        <div class="bloque-ejemplo">
+          <div class="tarjeta riesgo">
+            <h3>⚠️ Riesgo</h3>
+            <img
+              src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExb3Q3dXBjZG14MzBtaXY4MTF4ZjZxbGtnYW1obGE5dTM5amQyNDY1cSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l2Je9j5QtGqB92W2Y/giphy.gif"
+              alt="Homer cayéndose">
+            <div class="tooltip">¡Cuidado Homer! Esa silla no es ergonómica 🍩</div>
+            <p>Silla sin soporte lumbar y monitor mal posicionado.</p>
+          </div>
+          <div class="tarjeta dano">
+            <h3>💥 Daño posible</h3>
+            <img
+              src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMXcwc3Bua3A1czJ2b3RsdHh4b3QwOHI0MzUybGoxOW0yazR5cWFxaCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/OKPvSTxAjR4Sk/giphy.gif"
+              alt="Homer dolor espalda">
+            <div class="tooltip">¡Ay mi espalda! Y no es por las rosquillas 🎯</div>
+            <p>Dolor cervical crónico, fatiga visual y posturas forzadas.</p>
+          </div>
+          <div class="tarjeta prevencion">
+            <h3>✅ Medida preventiva</h3>
+            <img
+              src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2IxOG9ocTl4dW5iY2t4eXJ6MHNtZHk2ZDgxNDBzdjA3a3FldzVxYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l2JefCQpVpyuGRbeU/giphy.gif"
+              alt="Homer bien sentado">
+            <div class="tooltip">¡Así sí Homer! Postura perfecta 😎</div>
+            <p>Monitor a la altura de los ojos y silla ergonómica ajustada.</p>
+          </div>
+        </div>
+      </div>
+      <p class="frase">“Antes pensaba que era normal acabar con dolor de espalda. Ahora entiendo que prevenir es
+        avanzar”.</p>
+    </section>
+    <section class="slide">
+      <div class="bloque-con-titulo">
+        <h1>Carga física 2</h1>
+        <div class="bloque-ejemplo">
+          <div class="tarjeta riesgo">
+            <h3>⚠️ Riesgo</h3>
+            <img
+              src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ2IxenJ3bWp3eGc2amg4NmozODhpMmpubm11MHVhODd3NDJld3J6NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3orif503eflBDcE2n6/giphy.gif"
+              alt="Bart usando teclado mal">
+            <div class="tooltip">¡Así no Homer! Te vas a partir la espalda</div>
+            <p>Teclado mal posicionado y cuerpo en mala posición.</p>
+          </div>
+          <div class="tarjeta dano">
+            <h3>💥 Daño posible</h3>
+            <img
+              src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnRheGwyMXFwdzFmb2UzbnAyczF6Y3Q1amQ5NGQ0NWZidWRndW1yayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT5LMX6AAzhS3zMPVm/giphy.gif"
+              alt="Bart dolor mano">
+            <div class="tooltip">¡Auch! Túnel carpiano a la vista ⌨️</div>
+            <p>Síndrome del Túnel Carpiano y fatiga en muñecas.</p>
+          </div>
+          <div class="tarjeta prevencion">
+            <h3>✅ Medida preventiva</h3>
+            <img
+              src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjBtZzl6MGJlM2xxYWs3NmxnNGt6a3Z3ZG04MDR6MWlzejdjcTA0NSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o6Mb9rUQ5v4ZnBbzO/giphy.gif"
+              alt="Bart feliz con postura correcta">
+            <div class="tooltip">¡Bien Bart! Ergonomía desbloqueada 💪</div>
+            <p>Reposamuñecas, escritorio adaptado y pausas regulares.</p>
+          </div>
+        </div>
+      </div>
+      <p class="frase">“Tus manos son tu herramienta, cuídalas como cuidas tu teclado”.</p>
+    </section>
+
+    <!-- NUEVO EJEMPLO 3: Lisa -->
+    <section class="slide">
+      <div class="bloque-con-titulo">
+        <h1>Carga mental</h1>
+        <div class="bloque-ejemplo">
+          <div class="tarjeta riesgo">
+            <h3>⚠️ Riesgo</h3> <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDlscjNibzlhZmwxcjUydXlmeHBlazNsNDdxcnF5b3c3b3pyMzUzdSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT5LMzbI8CKufLwAAE/giphy.gif"
+              alt="Lisa programando estresada">
+            <div class="tooltip">¡Demasiadas tareas, poco tiempo! 😰</div>
+            <p>Lisa trabaja en varios proyectos a la vez, con plazos ajustados y sin apenas pausas. El exceso de
+              información y la presión para entregar a tiempo le generan una elevada carga mental.</p>
+          </div>
+          <div class="tarjeta dano">
+            <h3>💥 Daño posible</h3> <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTBrZWhrcHM5bTgyNG8yb2NseHVpa3l1cjdjcTBrMGxoaW1paDc5dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT5LMzgEAZmyp2AVEc/giphy.gif"
+              alt="Lisa con dolor de cabeza y cansancio">
+            <div class="tooltip">Fatiga, errores y bloqueo mental 🚫</div>
+            <p>El exceso de carga mental puede causar fatiga, frustración, estrés, dificultad para concentrarse y
+              aumento de errores, afectando tanto la salud como el rendimiento laboral.</p>
+          </div>
+          <div class="tarjeta prevencion">
+            <h3>✅ Medida preventiva</h3> <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2hqN3lnMHkyano0MnZndDEyeGxyeDV5ODJ3cHcyMjg4cGsybjAxNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT5LMJZL8xAKMmWj2E/giphy.gif"
+              alt="Lisa relajada y organizada">
+            <div class="tooltip">Planifica, prioriza y descansa 🧩</div>
+            <p>Organizar las tareas, establecer pausas regulares, priorizar y pedir ayuda cuando sea necesario ayuda a
+              reducir la carga mental y mejora el bienestar.</p>
+          </div>
+        </div>
+      </div>
+      <p class="frase">“No todo es fuerza bruta mental: a veces, parar es avanzar”.</p>
+    </section>
+<section class="slide">
+  <div class="bloque-con-titulo" style="text-align: center;">
+
+    <!-- Título con estilo alternativo -->
+    <h1 class="titulo-ergonomia">
+      ¡Ergonomía completada!
+    </h1>
+
+    <!-- Botón de salida -->
+    <button onclick="window.location.href='mapa.html'" 
+      style="
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        outline: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 auto;
+        transition: transform 0.2s;
+        font-family: 'Luckiest Guy', cursive;
+        font-size: 1.3em;
+      "
+      onmouseover="this.style.transform='scale(1.07)'"
+      onmouseout="this.style.transform='scale(1)'">
+      <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExczhpMmZoZjM4d3V6bzVlajA0YTdhZGJxcnB1ZXNuNGVpenB2c2phdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/IU4z4sZ3BZ3zO/giphy.gif" 
+           alt="Sticker Homer saliendo" 
+           style="width: 180px; height: auto; border-radius: 22px; box-shadow: 0 6px 32px 0 #4446; margin-bottom: 10px;">
+      <span style="color:#ffe356; text-shadow: 1px 2px 2px #222; letter-spacing: 1.5px;">Salir</span>
+    </button>
+
+<div style="position: relative; width: 60%; margin: 60px auto 10px; height: 60px;">
+
+  <!-- Homer corriendo -->
+  <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExczhpMmZoZjM4d3V6bzVlajA0YTdhZGJxcnB1ZXNuNGVpenB2c2phdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/IU4z4sZ3BZ3zO/giphy.gif"
+       alt="Homer corriendo"
+       style="position: absolute; top: -30px; left: -40px; height: 60px; animation: homerRun 7s linear infinite; z-index: 5; pointer-events: none;">
+
+  <!-- Rosquilla al final -->
+  <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMXllZXlrY2ZwODdpM3J4ZDk5Mjd6aTh1eDhzcWo5cnE2N3pyY29xMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/Kuz32oVmg13uK0W6TC/giphy.gif"
+       alt="Rosquilla"
+       class="rosquilla">
+  
+  <!-- Barra de progreso visible -->
+  <div style="width: 100%; background: #ffe35666; border-radius: 20px; overflow: hidden; height: 24px; box-shadow: inset 0 0 6px #0005; position: relative;">
+    
+    <!-- Brillo animado -->
+    <div class="brillo-barra"></div>
+
+    <!-- Fondo que se rellena -->
+    <div class="barra-infinita"></div>
+  </div>
+    <!-- Texto pequeño -->
+    <div style="color: #fffbe5cc; font-family: 'Luckiest Guy', cursive; margin-top: 4px;">
+      <span style="font-size: 1.2em;">Completada... por ahora jeje </span>
+    </div>
+
+  </div>
+</section>
+
+
+  </div>
+  </div>
+  <script>
+    window.addEventListener('load', () => {
+      const pantalla = document.getElementById("transicion-pantalla");
+      const urlParams = new URLSearchParams(window.location.search);
+      const desde = urlParams.get('desde');
+
+      if (desde === 'true') {
+        pantalla.classList.add("oculta"); // Abre las cortinas
+      } else {
+        pantalla.classList.add("oculta"); // Opción segura si se accede directamente
+      }
+    });
+
+    const slider = document.getElementById('slider');
+    let currentSlide = 0;
+    window.addEventListener('wheel', (e) => {
+      if (e.deltaY > 0 && currentSlide < 3) {
+        currentSlide++;
+        slider.style.transform = `translateX(-${currentSlide * 100}vw)`;
+      } else if (e.deltaY < 0 && currentSlide > 0) {
+        currentSlide--;
+        slider.style.transform = `translateX(-${currentSlide * 100}vw)`;
+      }
+    });
+
+    const canvas = document.getElementById("particulas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const particulas = Array.from({ length: 60 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 4 + 1,
+      d: Math.random() * 1 + 0.5
+    }));
+    function dibujar() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let p of particulas) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffe356";
+        ctx.fill();
+        p.y += p.d;
+        if (p.y > canvas.height) {
+          p.y = 0;
+          p.x = Math.random() * canvas.width;
+        }
+      }
+      requestAnimationFrame(dibujar);
+    }
+    dibujar();
+
+    function iniciarLluviaEmoji(contenedor, emoji, clase) {
+      const lluvia = document.createElement('div');
+      lluvia.classList.add(clase);
+      for (let i = 0; i < 15; i++) {
+        const e = document.createElement('div');
+        e.classList.add('emoji');
+        e.style.left = Math.random() * 100 + '%';
+        e.style.animationDuration = (Math.random() * 2 + 1) + 's';
+        e.textContent = emoji;
+        lluvia.appendChild(e);
+      }
+      contenedor.appendChild(lluvia);
+      setTimeout(() => contenedor.removeChild(lluvia), 3000);
+    }
+
+    function crearBarraVida(contenedor) {
+      if (contenedor.querySelector('.vida-barra')) return;
+      const barra = document.createElement('div');
+      barra.className = 'vida-barra';
+      const nivel = document.createElement('div');
+      nivel.className = 'vida-nivel';
+      barra.appendChild(nivel);
+      contenedor.appendChild(barra);
+    }
+
+    function iniciarLluviaSkills(contenedor) {
+      const lluvia = document.createElement('div');
+      lluvia.classList.add('skillcheck-rain');
+      for (let i = 0; i < 12; i++) {
+        const s = document.createElement('div');
+        s.classList.add('skill');
+        s.style.left = Math.random() * 100 + '%';
+        s.style.animationDuration = (Math.random() * 2 + 1) + 's';
+        s.textContent = '✅';
+        lluvia.appendChild(s);
+      }
+      contenedor.appendChild(lluvia);
+      setTimeout(() => contenedor.removeChild(lluvia), 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.tarjeta.riesgo').forEach(t => {
+        t.addEventListener('mouseenter', () => iniciarLluviaEmoji(t, '⚠️', 'emoji-rain'));
+      });
+      document.querySelectorAll('.tarjeta.dano').forEach(t => {
+        t.addEventListener('mouseenter', () => {
+          crearBarraVida(t);
+          setTimeout(() => t.classList.add('roja'), 2000);
+        });
+      });
+      document.querySelectorAll('.tarjeta.prevencion').forEach(t => {
+        t.addEventListener('mouseenter', () => iniciarLluviaSkills(t));
+      });
+    });
+  </script>
+  <audio id="whoosh"
+    src="https://cdn.pixabay.com/download/audio/2023/06/14/audio_69d13d0e86.mp3?filename=whoosh-transition-147699.mp3"
+    preload="auto"></audio>
+    <script>
+  // Identificador de la página actual
+  // (Cambia el valor por el nombre correspondiente en cada archivo)
+  const paginaActual = "ergonomia"; // Cambia a "psicosociologicos", "seguridad" o "ambientales" según la página
+
+  // Marca la visita de esta página
+  let visitas = JSON.parse(localStorage.getItem('leccionesVistas') || '{}');
+  visitas[paginaActual] = true;
+  localStorage.setItem('leccionesVistas', JSON.stringify(visitas));
+</script>
+</body>
+
+</html>
