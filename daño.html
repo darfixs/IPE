@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Daños Profesionales - IPE Simpsons</title>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Luckiest Guy', cursive;
+      background: #ffe356;
+      color: #2d2d2d;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3em;
+      color: #ff4c4c;
+      text-shadow: 2px 2px #000;
+      animation: entradaBrillante 1.5s ease-out forwards;
+    }
+
+    .bloque {
+      background: #fffbe5;
+      border: 4px solid #ffcc00;
+      border-radius: 20px;
+      padding: 30px;
+      margin: 30px auto;
+      width: 90%;
+      max-width: 1000px;
+      box-shadow: 5px 5px 0 #000;
+      animation: slideIn 1s ease forwards;
+    }
+
+    h2, h3 {
+      color: #0077b6;
+      margin-bottom: 10px;
+      animation: aparecerDesdeAbajo 1s ease forwards;
+    }
+
+    ul {
+      margin-top: 5px;
+      padding-left: 25px;
+    }
+
+    .destacado {
+      background-color: #d4f3ff;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 1.1em;
+      animation: resaltar 1s ease forwards;
+    }
+
+    .tarjeta {
+      background: #e1f7d5;
+      border: 3px dashed #4caf50;
+      margin: 20px 0;
+      padding: 20px;
+      border-radius: 15px;
+      transition: transform 0.3s;
+      animation: flotar 3s infinite alternate;
+    }
+
+    .tarjeta:hover {
+      transform: scale(1.02);
+    }
+
+    .icono {
+      font-size: 1.4em;
+      margin-right: 5px;
+    }
+
+    a img {
+      animation: rebotar 2s infinite;
+    }
+
+    @keyframes entradaBrillante {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideIn {
+      0% { opacity: 0; transform: translateX(-100vw); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes aparecerDesdeAbajo {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes resaltar {
+      0% { background-color: #fff; }
+      100% { background-color: #d4f3ff; }
+    }
+
+    @keyframes parpadeo {
+      0% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+
+    @keyframes rebotar {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes flotar {
+      from { transform: translateY(0px); }
+      to { transform: translateY(5px); }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🩺 Daños Profesionales</h1>
+
+<div class="bloque">
+  <p><strong>🔁 Las enfermedades, patologías o lesiones</strong> sufridas con motivo u ocasión del trabajo.</p>
+
+  <div class="tarjeta">
+    <h2>📌 Accidente de Trabajo (AT)</h2>
+    <p>Toda lesión corporal que la persona trabajadora sufra con ocasión o a consecuencia del trabajo.</p>
+  </div>
+
+  <div class="tarjeta">
+    <h2>🦠 Enfermedad Profesional (EP)</h2>
+    <p>La enfermedad contraída a consecuencia del trabajo siempre y cuando:</p>
+    <ul>
+      <li>Se especifique en el <strong>cuadro de Enfermedades Profesionales</strong> que viene en la normativa.</li>
+      <li>La enfermedad proceda de la acción de <strong>elementos o sustancias</strong> que en ese cuadro se indica.</li>
+    </ul>
+  </div>
+
+  <div class="tarjeta">
+    <h2>🧠 Otras Patologías Derivadas del Trabajo</h2>
+
+    <div class="destacado">
+      <p><strong>❓ ¿Qué pasa si tengo una enfermedad que es <em>“por culpa”</em> del trabajo pero no viene recogido en el <em>“famoso” cuadro?</em></strong></p>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <h3>📍 Enfermedades relacionadas con el trabajo:</h3>
+      <p>Toda la patología relacionada epidemiológicamente con el trabajo, que <strong>no tiene consideración legal</strong> de enfermedad profesional. Ejemplos: estrés 🥵, mobbing 👊, burnout 🔥...</p>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <h3>📍 Enfermedades del trabajo:</h3>
+      <p>Patologías influenciadas por el trabajo pero no determinadas por él. Se agravan en condiciones personales y laborales (por eso no todas son enfermedades profesionales).</p>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 50px;">
+    <a href="mapa.html">
+      <img src="https://media0.giphy.com/media/VAHK7iPBPUEwg/giphy.gif" alt="Homer corriendo" width="150" style="border-radius: 20px;">
+      <div style="
+        font-size: 1.6em;
+        margin-top: 10px;
+        color: #ff4c4c;
+        text-shadow: 2px 2px #000;
+        animation: parpadeo 1s infinite alternate;
+      ">
+        Salir de los daños...
+      </div>
+    </a>
+  </div>
+
+</div>
+
+</body>
+</html>
